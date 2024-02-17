@@ -45,7 +45,7 @@ export class GroupsController {
   @ApiResponse({
     status: 201,
   })
-  async addFriends(@Body() memberActionDto: MemberActionDto) {
+  async addMembers(@Body() memberActionDto: MemberActionDto) {
     return await this.service.addMembers(memberActionDto);
   }
 

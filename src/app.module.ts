@@ -6,6 +6,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { GroupsModule } from './groups/groups.module';
 import { config } from './config/config';
+import { ExpansesModule } from './expanses/expanses.module';
+import { SplitsModule } from './splits/splits.module';
+import { CategoriesModule } from './categories/categories.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -26,6 +30,10 @@ import { config } from './config/config';
     }),
     UsersModule,
     GroupsModule,
+    ExpansesModule,
+    SplitsModule,
+    CategoriesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
