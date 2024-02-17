@@ -23,6 +23,10 @@ export class GroupsService {
     return createdGroup;
   }
 
+  async removeGroup(groupId: string){
+    await this.groupModel.deleteOne({_id: groupId});
+  } 
+
   async getAllGroups(): Promise<Group[]> {
     return await this.groupModel.find();
   }
