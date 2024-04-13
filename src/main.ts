@@ -9,6 +9,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
 
+  app.enableCors();
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Split It')
     .setDescription('Split It API description')
