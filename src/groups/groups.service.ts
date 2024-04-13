@@ -4,8 +4,8 @@ import { Group } from './schemas/group.schema';
 import { Model, Types } from 'mongoose';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { MemberActionDto } from './dto/member-action.dto';
-import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/schemas/user.schema';
+import { User } from '../users/schemas/user.schema';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GroupsService {
@@ -22,6 +22,10 @@ export class GroupsService {
     const createdGroup = await this.groupModel.create(createGroupDto);
     return createdGroup;
   }
+
+  async removeGroup(groupId: string){
+    await this.groupModel.deleteOne({_id: groupId});
+  } 
 
   async getAllGroups(): Promise<Group[]> {
     return await this.groupModel.find();

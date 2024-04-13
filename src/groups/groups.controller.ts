@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -37,6 +37,19 @@ export class GroupsController {
     return await this.service.createGroup(createGroupDto);
   }
 
+  @Post('/removeGroup/:groupId')
+  @ApiOperation({
+    summary: 'Remove Group',
+    description: 'Remove Group'
+  })
+  @ApiResponse({
+    status: 201,
+    type: BaseGroupDto
+  })
+  async removeGroup(@Param('groupId') groupId: string) {
+    return await this.service.removeGroup(groupId);
+  }
+
   @Post('/addMembers')
   @ApiOperation({
     summary: 'Add Members',
@@ -45,7 +58,7 @@ export class GroupsController {
   @ApiResponse({
     status: 201,
   })
-  async addFriends(@Body() memberActionDto: MemberActionDto) {
+  async addMembers(@Body() memberActionDto: MemberActionDto) {
     return await this.service.addMembers(memberActionDto);
   }
 
