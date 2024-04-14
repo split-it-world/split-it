@@ -1,3 +1,4 @@
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
@@ -7,6 +8,8 @@ import { UserDto } from './dto/user-dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FriendActionDto } from './dto/friend-action.dto';
 
+
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -14,7 +17,8 @@ export class UsersService {
   ) {}
 
   async findAll(): Promise<User[]> {
-    return await this.userModel.find().exec();
+    const users: User[] = await this.userModel.find().exec();
+    return users;
   }
 
   async find(user: BaseUserDto): Promise<User> {
@@ -28,25 +32,31 @@ export class UsersService {
   async findByIds(userIds: string[]): Promise<User[]> {
     return await this.userModel.find({
       _id: { $in: userIds.map((id) => new Types.ObjectId(id)) },
-    });
+    }).exec();
   }
 
-  async getFriends(userId: string): Promise<UserDto[]> {
-    const user: UserDto = await this.userModel.findById(userId).lean();
-    const friendList: UserDto[] = await this.userModel
+  async getFriendsByUserId(userId: string): Promise<UserDto[]> {
+    const user: User = await this.userModel.findById(userId).lean();
+    const friendList: User[] = await this.userModel
       .find({
-        _id: { $in: user.friends },
+      _id: { $in: user.friends },
       })
       .lean();
-    return friendList;
+    const friendDtoList: UserDto[] = friendList.map((friend) => ({
+      id: friend.id,
+      name: friend.name,
+      email: friend.email,
+      phoneNumber: friend.phoneNumber,
+    }));
+    return friendDtoList;
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.userModel.findOne(createUserDto).lean();
+    const existingUser: User = await this.userModel.findOne(createUserDto).lean();
     if (existingUser) {
       return null;
     }
-    const createdUser = await this.userModel.create(createUserDto);
+    const createdUser: User = await this.userModel.create(createUserDto);
     return createdUser;
   }
 
@@ -94,7 +104,12 @@ export class UsersService {
     );
   }
 
-  async updateUser(user: User) {
-    await this.userModel.findOneAndReplace({ _id: user._id }, user);
+  async updateUser(userId: string, updateUserDto: CreateUserDto): Promise<User> {
+    return await this.userModel.findOneAndReplace({ _id: userId }, updateUserDto, {new: true});
+  }
+
+  async removeUser(userId: string): Promise<User> {
+    return await this.userModel.findByIdAndDelete(userId);
   }
 }
+

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user-dto';
@@ -12,7 +12,7 @@ import { FriendActionDto } from './dto/friend-action.dto';
 export class UsersController {
   constructor(private readonly service: UsersService) {}
 
-  @Get('/getAllUsers')
+  @Get('/')
   @ApiOperation({
     summary: 'Get All Users',
     description: 'Get All Users',
@@ -21,24 +21,26 @@ export class UsersController {
     status: 201,
     type: [UserDto],
   })
-  async index(): Promise<User[]> {
-    return await this.service.findAll();
+  async getAllUsers(): Promise<UserDto[]> {
+    const users: User[] = await this.service.findAll();
+    return users.map((user: User) => UserDto.fromEntity(user)); 
   }
 
-  @Post('/findUser')
+  @Put('/')
   @ApiOperation({
-    summary: 'Find User',
-    description: 'Find User',
+    summary: 'Create User',
+    description: 'Create User',
   })
   @ApiResponse({
     status: 201,
     type: UserDto,
   })
-  async findUser(@Body() user: BaseUserDto): Promise<User> {
-    return await this.service.find(user);
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
+    const user: User = await this.service.find(createUserDto);
+    return UserDto.fromEntity(user);
   }
 
-  @Get('/getUserById:id')
+  @Get('/:id')
   @ApiOperation({
     summary: 'Get User By Id',
     description: 'Get User By Id',
@@ -47,11 +49,12 @@ export class UsersController {
     status: 201,
     type: UserDto,
   })
-  async findById(@Param('id') userId: string): Promise<User> {
-    return await this.service.findById(userId);
+  async getById(@Param('id') userId: string): Promise<UserDto> {
+    const user: User = await this.service.findById(userId);
+    return UserDto.fromEntity(user);
   }
 
-  @Get('/getFriends/:id')
+  @Get('/getFriendsbyUserId/:id')
   @ApiOperation({
     summary: 'Get Friends',
     description: 'Get Friends',
@@ -61,20 +64,7 @@ export class UsersController {
     type: [UserDto],
   })
   async getFriends(@Param('id') userId: string): Promise<UserDto[]> {
-    return await this.service.getFriends(userId);
-  }
-
-  @Post('/createUser')
-  @ApiOperation({
-    summary: 'Create User',
-    description: 'Create User',
-  })
-  @ApiResponse({
-    status: 201,
-    type: UserDto,
-  })
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return await this.service.createUser(createUserDto);
+    return await this.service.getFriendsByUserId(userId);
   }
 
   @Post('/addFriends')
@@ -100,5 +90,33 @@ export class UsersController {
   })
   async removeFriends(@Body() friendActionDto: FriendActionDto) {
     return await this.service.removeFriends(friendActionDto);
+  }
+
+  @Post('/:id')
+  @ApiOperation({
+    summary: 'Update User',
+    description: 'Update User',
+  })
+  @ApiResponse({
+    status: 201,
+    type: UserDto,
+  })
+  async updateUser(@Param('id') userId: string, @Body() updateUserDto: CreateUserDto): Promise<UserDto> {
+    const user: User = await this.service.updateUser(userId, updateUserDto);
+    return UserDto.fromEntity(user);
+  }
+
+  @Delete('/:id')
+  @ApiOperation({
+    summary: 'Remove User',
+    description: 'Remove User',
+  })
+  @ApiResponse({
+    status: 201,
+    type: UserDto,
+  })
+  async removeUser(@Param('id') userId: string): Promise<UserDto> {
+    const user: User = await this.service.removeUser(userId);
+    return UserDto.fromEntity(user);
   }
 }

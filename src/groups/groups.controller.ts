@@ -1,17 +1,18 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { BaseGroupDto } from './dto/base-group.dto';
 import { Group } from './schemas/group.schema';
 import { MemberActionDto } from './dto/member-action.dto';
+import { GroupDto } from './dto/group.dto';
 
 @Controller('groups')
 @ApiTags('groups')
 export class GroupsController {
   constructor(private readonly service: GroupsService) {}
 
-  @Get('/getAllGroups')
+  @Get('/')
   @ApiOperation({
     summary: 'Get All Groups',
     description: 'Get All Groups',
@@ -20,11 +21,11 @@ export class GroupsController {
     status: 201,
     type: [BaseGroupDto],
   })
-  async getAllGroups(): Promise<Group[]> {
-    return await this.service.getAllGroups();
+  async getAllGroups(): Promise<GroupDto[]> {
+    return (await this.service.getAllGroups()).map((group: Group) => group.toDto());
   }
 
-  @Post('/createGroup')
+  @Put('/')
   @ApiOperation({
     summary: 'Create New Group',
     description: 'Create New Group',
@@ -33,8 +34,8 @@ export class GroupsController {
     status: 201,
     type: BaseGroupDto,
   })
-  async createGroup(createGroupDto: CreateGroupDto): Promise<Group> {
-    return await this.service.createGroup(createGroupDto);
+  async createGroup(createGroupDto: CreateGroupDto): Promise<GroupDto> {
+    return (await this.service.createGroup(createGroupDto)).toDto();
   }
 
   @Post('/removeGroup/:groupId')
@@ -50,16 +51,17 @@ export class GroupsController {
     return await this.service.removeGroup(groupId);
   }
 
-  @Post('/addMembers')
+  @Get('/getGroupsByUserId/:userId')
   @ApiOperation({
-    summary: 'Add Members',
-    description: 'Add Members',
+    summary: 'Get Groups by User ID',
+    description: 'Get Groups by User ID',
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
+    type: [GroupDto],
   })
-  async addMembers(@Body() memberActionDto: MemberActionDto) {
-    return await this.service.addMembers(memberActionDto);
+  async getGroupsByUserId(@Param('userId') userId: string): Promise<GroupDto[]> {
+    return (await this.service.getGroupsByUserId(userId)).map((group: Group) => group.toDto());
   }
 
   @Post('/removeMembers')
@@ -72,5 +74,31 @@ export class GroupsController {
   })
   async removeMembers(@Body() memberActionDto: MemberActionDto) {
     return await this.service.removeMembers(memberActionDto);
+  }
+
+  @Put('/:groupId')
+  @ApiOperation({
+    summary: 'Update Group',
+    description: 'Update Group',
+  })
+  @ApiResponse({
+    status: 200,
+    type: BaseGroupDto,
+  })
+  async updateGroup(@Param('groupId') groupId: string, @Body() updateGroupDto: CreateGroupDto): Promise<GroupDto> {
+    return (await this.service.updateGroup(groupId, updateGroupDto)).toDto();
+  }
+
+  @Get('/:groupId')
+  @ApiOperation({
+    summary: 'Get Group by ID',
+    description: 'Get Group by ID',
+  })
+  @ApiResponse({
+    status: 200,
+    type: GroupDto,
+  })
+  async getGroupById(@Param('groupId') groupId: string): Promise<GroupDto> {
+    return (await this.service.getGroupById(groupId)).toDto();
   }
 }
