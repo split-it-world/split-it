@@ -38,7 +38,7 @@ export class UsersController {
     return await this.service.find(user);
   }
 
-  @Get('/getUserById:id')
+  @Get('/getUserById/:id')
   @ApiOperation({
     summary: 'Get User By Id',
     description: 'Get User By Id',
