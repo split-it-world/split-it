@@ -29,15 +29,15 @@ export class GroupsService {
   }
 
   async removeGroup(groupId: string){
-    await this.groupModel.deleteOne({_id: groupId});
+    await this.groupModel.deleteOne({_id: groupId}).exec();
   } 
 
   async getAllGroups(): Promise<Group[]> {
-    return await this.groupModel.find();
+    return await this.groupModel.find().exec();
   }
 
   async getGroupById(groupId: string): Promise<Group> {
-    return this.groupModel.findById(groupId);
+    return this.groupModel.findById(groupId).exec();
   }
   
   async removeMembers(memberActionDto: MemberActionDto) {
