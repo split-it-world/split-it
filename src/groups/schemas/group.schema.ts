@@ -28,6 +28,17 @@ export class Group {
   @Prop({ require: true })
   @ApiProperty()
   createdBy: string;
+
+  toDto() {
+    const { _id, name, type, members, createdOn, createdBy } = this;
+    return {
+      id: _id.toString(),
+      name,
+      type,
+      createdOn,
+      createdBy,
+    };
+  }
 }
 
 export const GroupSchema = SchemaFactory.createForClass(Group);

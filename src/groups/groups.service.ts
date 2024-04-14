@@ -6,6 +6,11 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { MemberActionDto } from './dto/member-action.dto';
 import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
+import { GroupDto } from './dto/group.dto';
+import { group } from 'console';
+import { UserDto } from 'src/users/dto/user-dto';
+
+
 
 @Injectable()
 export class GroupsService {
@@ -31,6 +36,10 @@ export class GroupsService {
     return await this.groupModel.find();
   }
 
+  async getGroupById(groupId: string): Promise<Group> {
+    return this.groupModel.findById(groupId);
+  }
+  
   async removeMembers(memberActionDto: MemberActionDto) {
     const group: Group = await this.groupModel.findById(
       memberActionDto.groupId
@@ -49,7 +58,7 @@ export class GroupsService {
       member.groups = member.groups.filter(
         (groupId) => groupId.toString() != memberActionDto.groupId
       );
-      this.userService.updateUser(member);
+      this.userService.updateUser(member.id.toString(), member);
     });
   }
 
@@ -69,7 +78,19 @@ export class GroupsService {
     );
     members.forEach((member: User) => {
       member.groups.push(new Types.ObjectId(memberActionDto.groupId));
-      this.userService.updateUser(member);
+      this.userService.updateUser(member.id.toString(), member);
     });
+  }
+
+  async getGroupsByUserId(userId: string): Promise<Group[]> {
+    const user: User = await this.userService.findById(userId);
+    const groupIds: string[] = user.groups.map(groupId => groupId.toString());
+    const groups: Group[] = await this.groupModel.find({ _id: { $in: groupIds } });
+    return groups;
+  }
+
+  async updateGroup(groupId: string, updateGroupDto: CreateGroupDto): Promise<Group> {
+    const updatedGroup = await this.groupModel.findByIdAndUpdate(groupId, updateGroupDto, { new: true });
+    return updatedGroup;
   }
 }
