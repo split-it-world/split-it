@@ -7,7 +7,7 @@ export type GroupDocument = HydratedDocument<Group>;
 @Schema()
 export class Group {
   @ApiProperty()
-  _id: MongooseSchema.Types.ObjectId;
+  id: string;
 
   @Prop({ required: true })
   @ApiProperty()
@@ -28,17 +28,6 @@ export class Group {
   @Prop({ require: true })
   @ApiProperty()
   createdBy: string;
-
-  toDto() {
-    const { _id, name, type, members, createdOn, createdBy } = this;
-    return {
-      id: _id.toString(),
-      name,
-      type,
-      createdOn,
-      createdBy,
-    };
-  }
 }
 
 export const GroupSchema = SchemaFactory.createForClass(Group);

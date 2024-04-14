@@ -12,20 +12,7 @@ import { GroupDto } from './dto/group.dto';
 export class GroupsController {
   constructor(private readonly service: GroupsService) {}
 
-  @Get('/')
-  @ApiOperation({
-    summary: 'Get All Groups',
-    description: 'Get All Groups',
-  })
-  @ApiResponse({
-    status: 201,
-    type: [BaseGroupDto],
-  })
-  async getAllGroups(): Promise<GroupDto[]> {
-    return (await this.service.getAllGroups()).map((group: Group) => group.toDto());
-  }
-
-  @Put('/')
+  @Post('/')
   @ApiOperation({
     summary: 'Create New Group',
     description: 'Create New Group',
@@ -34,8 +21,9 @@ export class GroupsController {
     status: 201,
     type: BaseGroupDto,
   })
-  async createGroup(createGroupDto: CreateGroupDto): Promise<GroupDto> {
-    return (await this.service.createGroup(createGroupDto)).toDto();
+  async createGroup(@Body() createGroupDto: CreateGroupDto): Promise<GroupDto> {
+    const group: Group = await this.service.createGroup(createGroupDto);
+    return GroupDto.fromEntity(group);
   }
 
   @Post('/removeGroup/:groupId')
@@ -51,17 +39,18 @@ export class GroupsController {
     return await this.service.removeGroup(groupId);
   }
 
-  @Get('/getGroupsByUserId/:userId')
+  @Get('/getGroupsForUser/:userId')
   @ApiOperation({
-    summary: 'Get Groups by User ID',
-    description: 'Get Groups by User ID',
+    summary: 'Get Groups for User',
+    description: 'Get Groups for User',
   })
   @ApiResponse({
     status: 200,
     type: [GroupDto],
   })
-  async getGroupsByUserId(@Param('userId') userId: string): Promise<GroupDto[]> {
-    return (await this.service.getGroupsByUserId(userId)).map((group: Group) => group.toDto());
+  async getGroupsForUser(@Param('userId') userId: string): Promise<GroupDto[]> {
+    const groups: Group[] = await this.service.getGroupsByUserId(userId);
+    return groups.map((group: Group) => GroupDto.fromEntity(group)); 
   }
 
   @Post('/removeMembers')
@@ -76,6 +65,19 @@ export class GroupsController {
     return await this.service.removeMembers(memberActionDto);
   }
 
+  @Post('/addMembers')
+  @ApiOperation({
+    summary: 'Add Members',
+    description: 'Add Members',
+  })
+  @ApiResponse({
+    status: 201,
+  })
+  async addMembers(@Body() memberActionDto: MemberActionDto) {
+    return await this.service.addMembers(memberActionDto);
+  }
+
+
   @Put('/:groupId')
   @ApiOperation({
     summary: 'Update Group',
@@ -86,8 +88,10 @@ export class GroupsController {
     type: BaseGroupDto,
   })
   async updateGroup(@Param('groupId') groupId: string, @Body() updateGroupDto: CreateGroupDto): Promise<GroupDto> {
-    return (await this.service.updateGroup(groupId, updateGroupDto)).toDto();
+    const group: Group = await this.service.updateGroup(groupId, updateGroupDto);
+    return GroupDto.fromEntity(group);
   }
+
 
   @Get('/:groupId')
   @ApiOperation({
@@ -99,6 +103,7 @@ export class GroupsController {
     type: GroupDto,
   })
   async getGroupById(@Param('groupId') groupId: string): Promise<GroupDto> {
-    return (await this.service.getGroupById(groupId)).toDto();
+    const group: Group = await this.service.getGroupById(groupId);
+    return GroupDto.fromEntity(group);
   }
 }
