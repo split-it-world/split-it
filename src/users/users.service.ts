@@ -56,8 +56,7 @@ export class UsersService {
       const friendList: User[] = await this.userModel
         .find({
           _id: { $in: user.friends },
-        })
-        .lean();
+        });
       const friendDtoList: UserDto[] = friendList.map((friend) => ({
         id: friend.id,
         name: friend.name,
